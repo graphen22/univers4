@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyage Cosmique - Maîtrise des Années-Lumière</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #0a0a1a;
+            --nebula-purple: #1a0a2e;
+            --cosmic-blue: #0d1b3e;
+            --star-gold: #ffd700;
+            --plasma-cyan: #00f5ff;
+            --nova-pink: #ff6b9d;
+            --comet-orange: #ff8c42;
+            --success-green: #00ff88;
+            --error-red: #ff4757;
+            --glass-white: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--space-black);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        /* Fond étoilé */
+        .starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .stars {
+            position: absolute; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent);
+            background-size: 400px 200px;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+        .stars:nth-child(2) { background-position: 50px 50px; animation-delay: -2s; opacity: 0.7; }
+        .stars:nth-child(3) { background-position: 100px 100px; animation-delay: -4s; opacity: 0.5; }
+        @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .nebula {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 191, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none; z-index: 1;
+        }
+
+        /* PAGE D'ACCUEIL */
+        #splashScreen {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--space-black), var(--nebula-purple), var(--cosmic-blue));
+        }
+        #splashScreen.hidden { display: none; }
+
+        .splash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold), var(--nova-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .splash-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.8);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .splash-author {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .splash-icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        @keyframes pulseArrow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.08); }
+        }
+
+        .btn-enter {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            padding: 20px 50px;
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold));
+            color: var(--space-black);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 245, 255, 0.5);
+        }
+
+        /* HEADER COMPACT */
+        .header-compact {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            background: linear-gradient(180deg, rgba(10,10,26,0.95), rgba(10,10,26,0.8));
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .header-compact.visible { display: flex; }
+
+        .header-title-small {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            background: linear-gradient(90deg, var(--plasma-cyan), var(--star-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-compact {
+            display: flex; gap: 8px; flex: 1; justify-content: center;
+        }
+
+        .step-dot {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold));
+            border-color: var(--star-gold);
+            color: var(--space-black);
+        }
+
+        .step-dot.completed {
+            background: var(--success-green);
+            border-color: var(--success-green);
+            color: var(--space-black);
+        }
+
+        .score-compact {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--star-gold);
+        }
+
+        /* CONTENEUR PRINCIPAL */
+        .main-container {
+            position: relative; z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 70px 20px 30px;
+            display: none;
+        }
+
+        .main-container.visible { display: block; }
+
+        /* CARTES DE CONTENU */
+        .content-card {
+            background: linear-gradient(135deg, rgba(26, 10, 46, 0.7), rgba(13, 27, 62, 0.7));
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--plasma-cyan), var(--star-gold), var(--nova-pink));
+            border-radius: 15px 15px 0 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--plasma-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title .icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* NAVIGATION SUITE/PRÉCÉDENT */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-prev {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-prev:hover { background: rgba(255,255,255,0.2); }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold));
+            color: var(--space-black);
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .btn-next:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 245, 255, 0.4); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold));
+            color: var(--space-black);
+            font-weight: 600;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+        }
+
+        /* INFO-BULLE CONVERSION */
+        .info-tooltip {
+            background: linear-gradient(135deg, rgba(138,43,226,0.3), rgba(0,191,255,0.2));
+            border: 2px solid var(--star-gold);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .info-tooltip p { margin: 5px 0; }
+
+        /* FRACTIONS */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 8px;
+        }
+        .fraction .numerator {
+            border-bottom: 2px solid currentColor;
+            padding: 0 5px 3px 5px;
+        }
+        .fraction .denominator {
+            padding: 3px 5px 0 5px;
+        }
+
+        /* SOUS-PAGES */
+        .subpage { display: none; }
+        .subpage.active { display: block; }
+
+        /* TEXTE ET FORMULES */
+        .explanation {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            margin-bottom: 20px;
+        }
+
+        .formula-box {
+            background: rgba(0,0,0,0.4);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid var(--plasma-cyan);
+        }
+
+        .formula-box .formula {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        .highlight-gold { color: var(--star-gold); font-weight: 600; }
+        .highlight-cyan { color: var(--plasma-cyan); font-weight: 600; }
+        .highlight-pink { color: var(--nova-pink); font-weight: 600; }
+
+        /* EXEMPLES */
+        .example-box {
+            background: rgba(255,215,0,0.08);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .example-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--star-gold);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .arrow-animation {
+            display: inline-block;
+            animation: arrowBounce 1s infinite;
+        }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+
+        /* EXERCICES */
+        .exercise-box {
+            background: rgba(0,245,255,0.08);
+            border: 1px solid rgba(0,245,255,0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--plasma-cyan);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+        }
+
+        /* Zone de saisie */
+        .input-zone {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 5px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin: 15px 0;
+            background: rgba(0,0,0,0.3);
+            padding: 12px 20px;
+            border-radius: 12px;
+        }
+
+        .input-display {
+            min-width: 45px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .input-a {
+            background: rgba(255,215,0,0.15);
+            border: 2px solid var(--star-gold);
+            color: var(--star-gold);
+        }
+
+        .input-n {
+            background: rgba(0,245,255,0.15);
+            border: 2px solid var(--plasma-cyan);
+            color: var(--plasma-cyan);
+            font-size: 0.9rem;
+            margin-top: -12px;
+            min-width: 30px;
+        }
+
+        .input-unit {
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+            margin-left: 15px;
+            align-self: center;
+        }
+
+        /* Inputs natifs stylisés */
+        .native-input {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .native-input:focus {
+            box-shadow: 0 0 15px currentColor;
+        }
+        
+        .native-input-a {
+            background: rgba(255,215,0,0.15);
+            border: 2px solid var(--star-gold);
+            color: var(--star-gold);
+            width: 100px;
+        }
+        
+        .native-input-n {
+            background: rgba(0,245,255,0.15);
+            border: 2px solid var(--plasma-cyan);
+            color: var(--plasma-cyan);
+            width: 45px;
+            font-size: 0.85rem;
+            padding: 4px 6px;
+        }
+        
+        .native-input-simple {
+            background: rgba(255,215,0,0.15);
+            border: 2px solid var(--star-gold);
+            color: var(--star-gold);
+            width: 120px;
+        }
+        
+        .native-input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* Zone de saisie avec notation scientifique */
+        .sci-input-zone {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 6px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .sci-input-zone .times {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        .sci-input-zone .exp-container {
+            display: inline-flex;
+            align-items: baseline;
+            position: relative;
+        }
+        
+        .sci-input-zone .exp-ten {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        .sci-input-zone .native-input-n {
+            position: relative;
+            top: -12px;
+            font-size: 0.85rem;
+            padding: 3px 5px;
+            width: 40px;
+            margin-left: 1px;
+        }
+        
+        .sci-input-zone .input-unit {
+            margin-left: 8px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Suppression des anciens claviers - gardés pour compatibilité mais cachés */
+        .keyboards {
+            display: none;
+        }
+
+        /* Feedback */
+        .feedback {
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin: 12px 0;
+            font-size: 1rem;
+            display: none;
+        }
+
+        .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+        .feedback.correct { background: rgba(0,255,136,0.2); border: 1px solid var(--success-green); }
+        .feedback.incorrect { background: rgba(255,71,87,0.2); border: 1px solid var(--error-red); }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        /* QCM */
+        .qcm-options { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
+
+        .qcm-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .qcm-option:hover { background: rgba(255,255,255,0.1); }
+        .qcm-option.selected { border-color: var(--plasma-cyan); background: rgba(0,245,255,0.1); }
+        .qcm-option.correct { border-color: var(--success-green); background: rgba(0,255,136,0.15); }
+        .qcm-option.incorrect { border-color: var(--error-red); background: rgba(255,71,87,0.15); }
+
+        .option-letter {
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg, var(--plasma-cyan), var(--star-gold));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--space-black);
+            font-weight: 600;
+        }
+
+        /* MODAL MÉTHODE */
+        .method-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .method-overlay.show { display: flex; }
+
+        .method-modal {
+            background: linear-gradient(135deg, var(--nebula-purple), var(--cosmic-blue));
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid var(--star-gold);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .method-modal h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--star-gold);
+            margin-bottom: 15px;
+        }
+
+        .method-modal p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .close-method {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--star-gold);
+            color: var(--space-black);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Images */
+        .image-placeholder {
+            width: 100%;
+            max-height: 200px;
+            background: linear-gradient(135deg, var(--cosmic-blue), var(--nebula-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.95rem;
+            border: 2px dashed var(--glass-border);
+            margin: 15px 0;
+        }
+
+        .astro-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .keyboards { flex-direction: column; align-items: center; }
+            .keyboard-keys { grid-template-columns: repeat(6, 28px); }
+            .key { width: 28px; height: 28px; font-size: 0.85rem; }
+            .splash-title { font-size: 1.8rem; }
+            .btn-enter { font-size: 1.1rem; padding: 15px 35px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fond étoilé -->
+    <div class="starfield">
+        <div class="stars"></div>
+        <div class="stars"></div>
+        <div class="stars"></div>
+    </div>
+    <div class="nebula"></div>
+
+    <!-- PAGE D'ACCUEIL -->
+    <div id="splashScreen">
+        <div class="splash-icon">🚀</div>
+        <h1 class="splash-title">Voyage Cosmique</h1>
+        <p class="splash-subtitle">Maîtrise la notation scientifique<br>et les conversions en années-lumière</p>
+        <p class="splash-author">M. Fonteneau - Lycée Français de Francfort</p>
+        <button class="btn-enter" onclick="startGame()">Commencer l'aventure</button>
+    </div>
+
+    <!-- HEADER COMPACT -->
+    <header class="header-compact" id="headerCompact">
+        <span class="header-title-small">🚀 Voyage Cosmique</span>
+        <div class="progress-compact" id="progressDots"></div>
+        <span class="score-compact">Score: <span id="scoreDisplay">0</span></span>
+    </header>
+
+    <!-- MODAL MÉTHODE -->
+    <div class="method-overlay" id="methodOverlay" onclick="closeMethodIfOutside(event)">
+        <div class="method-modal" id="methodModal">
+            <h3>💡 Rappel de la méthode</h3>
+            <div id="methodContent"></div>
+            <button class="close-method" onclick="closeMethod()">Compris !</button>
+        </div>
+    </div>
+
+    <!-- CONTENEUR PRINCIPAL -->
+    <div class="main-container" id="mainContainer">
+        
+        <!-- ==================== ÉTAPE 1 ==================== -->
+        <div class="step-content" id="step1" style="display: none;">
+            
+            <!-- Sous-page 1.1 : Définition -->
+            <div class="subpage active" id="step1-page1">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">📐</span>
+                        Étape 1 : La notation scientifique
+                    </h2>
+                    
+                    <p class="explanation">
+                        La <span class="highlight-gold">notation scientifique</span> permet d'écrire les très grands ou très petits nombres de façon simple et lisible.
+                    </p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">
+                            <span class="highlight-gold">a</span> × 10<sup class="highlight-cyan">n</sup>
+                        </div>
+                    </div>
+                    
+                    <p class="explanation">
+                        <strong class="highlight-gold">« a »</strong> est un nombre décimal compris entre 1 et 10 (1 ≤ a < 10)
+                    </p>
+                    
+                    <p class="explanation">
+                        <strong class="highlight-cyan">« n »</strong> est l'exposant (un nombre entier, positif ou négatif)
+                    </p>
+
+                    <div class="nav-buttons">
+                        <div></div>
+                        <button class="btn btn-next" onclick="goToSubpage(1, 2)">Suite <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 1.2 : Exemple 1 -->
+            <div class="subpage" id="step1-page2">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">✏️</span>
+                        Comment écrire un nombre en notation scientifique ?
+                    </h2>
+                    
+                    <div class="example-box">
+                        <div class="example-title">Exemple 1 : Un grand nombre</div>
+                        <p class="explanation">
+                            Écrivons <strong class="highlight-gold">1781,2 m</strong> en notation scientifique.
+                        </p>
+                        <p class="explanation">
+                            On déplace la virgule vers la <strong class="highlight-cyan">gauche</strong> jusqu'à avoir un nombre entre 1 et 10 :
+                        </p>
+                        <p class="explanation" style="text-align: center; font-size: 1.3rem;">
+                            <span class="highlight-gold">1</span>781,2 → <span class="highlight-gold">1</span>,7812
+                        </p>
+                        <p class="explanation">
+                            On a déplacé la virgule de <strong class="highlight-cyan">3 positions vers la gauche</strong>, donc l'exposant est <strong class="highlight-cyan">+3</strong>.
+                        </p>
+                        <div class="formula-box">
+                            <div class="formula">1781,2 = <span class="highlight-gold">1,7812</span> × 10<sup class="highlight-cyan">3</sup></div>
+                        </div>
+                        <p class="explanation" style="font-size: 0.95rem; color: rgba(255,255,255,0.7);">
+                            💡 Astuce : Virgule vers la <strong>gauche</strong> = exposant <strong>positif</strong>
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(1, 1)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(1, 3)">Suite <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 1.3 : Exemple 2 -->
+            <div class="subpage" id="step1-page3">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">✏️</span>
+                        Exemple avec un petit nombre
+                    </h2>
+                    
+                    <div class="example-box">
+                        <div class="example-title">Exemple 2 : Un petit nombre</div>
+                        <p class="explanation">
+                            Écrivons <strong class="highlight-pink">0,000478 m</strong> en notation scientifique.
+                        </p>
+                        <p class="explanation">
+                            On déplace la virgule vers la <strong class="highlight-pink">droite</strong> jusqu'à avoir un nombre entre 1 et 10 :
+                        </p>
+                        <p class="explanation" style="text-align: center; font-size: 1.3rem;">
+                            0,000<span class="highlight-gold">4</span>78 → <span class="highlight-gold">4</span>,78
+                        </p>
+                        <p class="explanation">
+                            On a déplacé la virgule de <strong class="highlight-pink">4 positions vers la droite</strong>, donc l'exposant est <strong class="highlight-pink">−4</strong>.
+                        </p>
+                        <div class="formula-box">
+                            <div class="formula">0,000478 = <span class="highlight-gold">4,78</span> × 10<sup class="highlight-pink">−4</sup></div>
+                        </div>
+                        <p class="explanation" style="font-size: 0.95rem; color: rgba(255,255,255,0.7);">
+                            💡 Astuce : Virgule vers la <strong>droite</strong> = exposant <strong>négatif</strong>
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(1, 2)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(1, 4)">Passer aux exercices <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 1.4 : Exercices -->
+            <div class="subpage" id="step1-page4">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🎯</span>
+                        À toi de jouer !
+                    </h2>
+                    
+                    <div class="exercise-box" id="exercise1Container"></div>
+
+                    <div class="nav-buttons" id="nav1Exercises">
+                        <button class="btn btn-prev" onclick="goToSubpage(1, 3)">← Revoir les exemples</button>
+                        <button class="btn btn-next" id="btnNextStep1" style="display: none;" onclick="goToStep(2)">Étape suivante <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ÉTAPE 2 ==================== -->
+        <div class="step-content" id="step2" style="display: none;">
+            
+            <!-- Sous-page 2.1 : Introduction -->
+            <!-- Sous-page 2.1 : Distances astronomiques (intro) -->
+            <div class="subpage active" id="step2-page1">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🌌</span>
+                        Les distances dans l'Univers
+                    </h2>
+                    
+                    <p class="explanation">
+                        Dans l'Univers, les distances sont <strong class="highlight-gold">immenses</strong>. 
+                        Les nombres deviennent vite impossibles à lire avec tous leurs zéros !
+                        Voici quelques exemples...
+                    </p>
+                    
+                    <div style="display: grid; gap: 15px;">
+                        <div class="example-box" style="border-color: rgba(0,245,255,0.3); background: rgba(0,245,255,0.05); display: flex; align-items: center; gap: 15px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Solar_sys8.jpg/220px-Solar_sys8.jpg" alt="Système Solaire" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover; box-shadow: 0 0 10px rgba(0,245,255,0.3);">
+                            <div>
+                                <div class="example-title" style="color: var(--plasma-cyan);">☀️ Le Système Solaire</div>
+                                <p style="margin: 0;">Diamètre : <strong class="highlight-gold">9,09 milliards de km</strong></p>
+                            </div>
+                        </div>
+                        <div class="example-box" style="border-color: rgba(255,107,157,0.3); background: rgba(255,107,157,0.05); display: flex; align-items: center; gap: 15px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg/330px-Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg" alt="Étoile de Barnard" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover; box-shadow: 0 0 10px rgba(255,107,157,0.3);">
+                            <div>
+                                <div class="example-title" style="color: var(--nova-pink);">⭐ Étoile de Barnard</div>
+                                <p style="margin: 0;">Distance : <strong class="highlight-gold">56 800 milliards de km</strong></p>
+                            </div>
+                        </div>
+                        <div class="example-box" style="display: flex; align-items: center; gap: 15px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/ESO-VLT-Laser-phot-33a-07.jpg/220px-ESO-VLT-Laser-phot-33a-07.jpg" alt="Voie Lactée" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover; box-shadow: 0 0 10px rgba(255,215,0,0.3);">
+                            <div>
+                                <div class="example-title">🌌 Diamètre de la Voie Lactée</div>
+                                <p style="margin: 0;">Distance : <strong class="highlight-gold">1 milliard de milliards de km</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToStep(1)">← Étape précédente</button>
+                        <button class="btn btn-next" onclick="goToSubpage(2, 2)">Notation scientifique <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 2.2 : Exercices notation scientifique -->
+            <div class="subpage" id="step2-page2">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🎯</span>
+                        Écris en notation scientifique
+                    </h2>
+                    
+                    <div class="exercise-box" id="exercise2NotationContainer"></div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(2, 1)">← Revoir les distances</button>
+                        <button class="btn btn-next" id="btnToStep2Bonus" style="display: none;" onclick="goToSubpage(2, 3)">Question bonus <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 2.3 : Question bonus -->
+            <div class="subpage" id="step2-page3">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🤔</span>
+                        Question bonus
+                    </h2>
+                    
+                    <div class="exercise-box" id="qcm2Container">
+                        <p class="question-text"><strong>Pourquoi utilise-t-on la notation scientifique en astronomie ?</strong></p>
+                        <div class="qcm-options" id="qcm2Options">
+                            <div class="qcm-option" onclick="selectQCM2(this, 0)"><span class="option-letter">A</span><span>C'est plus esthétique</span></div>
+                            <div class="qcm-option" onclick="selectQCM2(this, 1)"><span class="option-letter">B</span><span>On ne risque pas de se tromper dans les zéros</span></div>
+                            <div class="qcm-option" onclick="selectQCM2(this, 2)"><span class="option-letter">C</span><span>C'est obligatoire par la loi</span></div>
+                        </div>
+                        <div class="feedback" id="qcm2Feedback"></div>
+                        <button class="btn btn-primary" onclick="checkQCM2()" style="margin-top: 10px;">Valider</button>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(2, 2)">← Exercices</button>
+                        <button class="btn btn-next" id="btnToStep2Method" style="display: none;" onclick="goToSubpage(2, 4)">Méthode km → m <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 2.4 : Méthode conversion km → m -->
+            <div class="subpage" id="step2-page4">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🔄</span>
+                        Convertir des km en mètres
+                    </h2>
+                    
+                    <p class="explanation">
+                        En astronomie, on utilise souvent des distances en <strong class="highlight-gold">mètres</strong>.
+                        Pour convertir des kilomètres en mètres, on <strong class="highlight-cyan">multiplie par 1000</strong> (ou 10³).
+                    </p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">1 km = 1000 m = 10<sup>3</sup> m</div>
+                    </div>
+
+                    <div class="example-box">
+                        <div class="example-title">Exemple</div>
+                        <p class="explanation">
+                            5,78 × 10<sup>14</sup> km = 5,78 × 10<sup>14</sup> × 10<sup>3</sup> m = 5,78 × 10<sup>17</sup> m
+                        </p>
+                        <p class="explanation" style="font-size: 0.95rem; color: rgba(255,255,255,0.7);">
+                            💡 On additionne les exposants : 14 + 3 = 17
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(2, 3)">← Question bonus</button>
+                        <button class="btn btn-next" onclick="goToSubpage(2, 5)">Exercices <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 2.5 : Exercices conversion km → m -->
+            <div class="subpage" id="step2-page5">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🎯</span>
+                        Convertis en mètres
+                    </h2>
+                    
+                    <div class="exercise-box" id="exercise2Container"></div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(2, 4)">← Revoir la méthode</button>
+                        <button class="btn btn-next" id="btnNextStep2" style="display: none;" onclick="goToStep(3)">Étape suivante <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ÉTAPE 3 ==================== -->
+        <div class="step-content" id="step3" style="display: none;">
+            
+            <!-- Sous-page 3.1 : Qu'est-ce qu'une année-lumière -->
+            <div class="subpage active" id="step3-page1">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">⭐</span>
+                        Qu'est-ce qu'une année-lumière ?
+                    </h2>
+                    
+                    <!-- Image ciel étoilé -->
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/ESO_-_Milky_Way.jpg/320px-ESO_-_Milky_Way.jpg" alt="Voie Lactée" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 0 20px rgba(0,245,255,0.3);">
+                    </div>
+                    
+                    <p class="explanation">
+                        Une <strong class="highlight-gold">année-lumière</strong> est la <strong>distance parcourue par la lumière en une année</strong>.
+                    </p>
+                    
+                    <p class="explanation">
+                        La lumière voyage à une vitesse incroyable : environ <strong class="highlight-cyan">300 000 km par seconde</strong> !
+                    </p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">1 année-lumière = <span class="highlight-gold">9,46 × 10<sup>15</sup></span> m</div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToStep(2)">← Étape précédente</button>
+                        <button class="btn btn-next" onclick="goToSubpage(3, 2)">Suite <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 3.2 : Voir dans le passé -->
+            <div class="subpage" id="step3-page2">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🔭</span>
+                        Voir loin, c'est voir dans le passé !
+                    </h2>
+                    
+                    <div class="example-box" style="border-color: rgba(255,107,157,0.3); background: rgba(255,107,157,0.08);">
+                        <p class="explanation">
+                            Quand tu regardes une étoile, tu ne la vois pas comme elle est <em>maintenant</em>, mais comme elle était <strong>quand sa lumière a été émise</strong>.
+                        </p>
+                        <p class="explanation">
+                            Si une étoile est à <strong class="highlight-cyan">100 années-lumière</strong> de nous, sa lumière a voyagé pendant <strong>100 ans</strong> pour arriver jusqu'à nos yeux !
+                        </p>
+                        <p class="explanation">
+                            Tu vois donc cette étoile telle qu'elle était il y a 100 ans. Elle est peut-être déjà <strong class="highlight-pink">morte</strong> depuis, et on ne le saurait pas encore ! 💀⭐
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(3, 1)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(3, 3)">Mini-quiz <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 3.3 : Mini-quiz -->
+            <div class="subpage" id="step3-page3">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">❓</span>
+                        Mini-quiz : As-tu bien compris ?
+                    </h2>
+                    
+                    <div id="lightYearQuizContainer"></div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(3, 2)">← Précédent</button>
+                        <button class="btn btn-next" id="btnToConversion" style="display: none;" onclick="goToSubpage(3, 4)">Méthode de conversion <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 3.4 : Méthode avec tableau (explication) -->
+            <div class="subpage" id="step3-page4">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">📐</span>
+                        La méthode de conversion
+                    </h2>
+                    
+                    <p class="explanation">
+                        Pour convertir des <strong class="highlight-cyan">mètres</strong> en <strong class="highlight-gold">années-lumière</strong>, on utilise un <strong>tableau de proportionnalité</strong>.
+                    </p>
+                    
+                    <p class="explanation">
+                        On place la distance en <strong class="highlight-cyan">mètres</strong> sur la <strong>première ligne</strong>, et la distance en <strong class="highlight-gold">années-lumière</strong> sur la <strong>deuxième ligne</strong>.
+                    </p>
+
+                    <!-- Tableau avec flèche courbe animée -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 25px 0;">
+                        
+                        <!-- Flèche courbe animée à gauche -->
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: pulseArrow 2s infinite;">
+                            <svg width="50" height="100" viewBox="0 0 60 120" style="overflow: visible;">
+                                <defs>
+                                    <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#ffd700"/>
+                                    </marker>
+                                </defs>
+                                <path d="M 50 15 Q 5 60 50 105" stroke="#ffd700" stroke-width="3" fill="none" marker-end="url(#arrowhead3)" style="filter: drop-shadow(0 0 6px rgba(255,215,0,0.5));"/>
+                            </svg>
+                            <span style="color: var(--star-gold); font-size: 0.85rem; text-align: center;">÷ 9,46×10<sup>15</sup></span>
+                        </div>
+
+                        <!-- Tableau -->
+                        <table style="border-collapse: collapse; font-size: 1rem;">
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 12px 20px; border-radius: 8px 0 0 0; color: #fff;">Distance (m)</th>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 12px 20px; border-radius: 0 8px 0 0; color: #fff;">Distance (m)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(0,245,255,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(0,245,255,0.3);">9,46 × 10<sup>15</sup></td>
+                                <td style="background: rgba(0,245,255,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(0,245,255,0.3); color: var(--plasma-cyan);">Valeur à convertir</td>
+                            </tr>
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 12px 20px; color: var(--space-black);">Distance (a.l.)</th>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 12px 20px; color: var(--space-black);">Distance (a.l.)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(255,215,0,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(255,215,0,0.3); border-radius: 0 0 0 8px;">1</td>
+                                <td style="background: rgba(255,215,0,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(255,215,0,0.3); border-radius: 0 0 8px 0; color: var(--star-gold); font-weight: bold;">?</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="example-box" style="border-color: var(--star-gold);">
+                        <p class="explanation" style="margin: 0;">
+                            <strong class="highlight-gold">💡 Principe :</strong> Pour passer de <strong>9,46 × 10<sup>15</sup></strong> à <strong>1</strong> (colonne de gauche), on <strong class="highlight-gold">divise par 9,46 × 10<sup>15</sup></strong>.
+                        </p>
+                        <p class="explanation" style="margin-top: 10px; margin-bottom: 0;">
+                            Donc, pour trouver <strong>?</strong>, on doit <strong class="highlight-gold">diviser la valeur à convertir par 9,46 × 10<sup>15</sup></strong>.
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(3, 3)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(3, 5)">Voir un exemple <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 3.5 : Exemple de calcul détaillé -->
+            <div class="subpage" id="step3-page5">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">📝</span>
+                        Exemple de conversion
+                    </h2>
+                    
+                    <p class="explanation">
+                        <strong>Exemple :</strong> Convertissons <strong class="highlight-cyan">5,78 × 10<sup>17</sup> m</strong> en années-lumière.
+                    </p>
+
+                    <!-- Tableau avec valeurs -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0;">
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: pulseArrow 2s infinite;">
+                            <svg width="50" height="100" viewBox="0 0 60 120" style="overflow: visible;">
+                                <defs>
+                                    <marker id="arrowhead3b" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#ffd700"/>
+                                    </marker>
+                                </defs>
+                                <path d="M 50 15 Q 5 60 50 105" stroke="#ffd700" stroke-width="3" fill="none" marker-end="url(#arrowhead3b)" style="filter: drop-shadow(0 0 6px rgba(255,215,0,0.5));"/>
+                            </svg>
+                            <span style="color: var(--star-gold); font-size: 0.85rem;">÷ 9,46×10<sup>15</sup></span>
+                        </div>
+                        <table style="border-collapse: collapse; font-size: 1rem;">
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 10px 15px; color: #fff;">Distance (m)</th>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 10px 15px; color: #fff;">Distance (m)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(0,245,255,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(0,245,255,0.3);">9,46 × 10<sup>15</sup></td>
+                                <td style="background: rgba(0,245,255,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(0,245,255,0.3); color: var(--plasma-cyan);">5,78 × 10<sup>17</sup></td>
+                            </tr>
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 10px 15px; color: var(--space-black);">Distance (a.l.)</th>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 10px 15px; color: var(--space-black);">Distance (a.l.)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(255,215,0,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(255,215,0,0.3);">1</td>
+                                <td style="background: rgba(255,215,0,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(255,215,0,0.3); color: var(--star-gold); font-weight: bold;">?</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="example-box" style="border-color: var(--success-green); background: rgba(0,255,136,0.08);">
+                        <div class="example-title" style="color: var(--success-green);">📐 Calcul</div>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 15px 0; text-align: center;">
+                            ? = <span class="fraction"><span class="numerator">5,78 × 10<sup>17</sup></span><span class="denominator">9,46 × 10<sup>15</sup></span></span>
+                        </p>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 15px 0; text-align: center;">
+                            ? = <span class="fraction"><span class="numerator">5,78</span><span class="denominator">9,46</span></span> × 10<sup>(17−15)</sup>
+                        </p>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 15px 0; text-align: center;">
+                            ? ≈ 0,611 × 10<sup>2</sup>
+                        </p>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin: 15px 0; text-align: center; color: var(--success-green);">
+                            ? ≈ <strong>61,1 années-lumière</strong>
+                        </p>
+                    </div>
+                    
+                    <p class="explanation" style="font-size: 0.95rem; color: rgba(255,255,255,0.7);">
+                        💡 <strong>Astuce :</strong> Pour diviser des puissances de 10, on <strong>soustrait</strong> les exposants : 17 − 15 = 2
+                    </p>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(3, 4)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(3, 6)">À toi de jouer ! <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 3.6 : Exercices -->
+            <div class="subpage" id="step3-page6">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🎯</span>
+                        Convertis en années-lumière
+                    </h2>
+                    
+                    <div class="exercise-box" id="exercise3Container"></div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(3, 5)">← Revoir l'exemple</button>
+                        <button class="btn btn-next" id="btnNextStep3" style="display: none;" onclick="goToStep(4)">Étape suivante <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ÉTAPE 4 ==================== -->
+        <div class="step-content" id="step4" style="display: none;">
+            
+            <!-- Sous-page 4.1 : Méthode inverse - Introduction -->
+            <div class="subpage active" id="step4-page1">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🔄</span>
+                        Étape 4 : Convertir en mètres
+                    </h2>
+                    
+                    <p class="explanation">
+                        Maintenant, faisons l'<strong class="highlight-pink">inverse</strong> ! Pour convertir des <strong class="highlight-gold">années-lumière</strong> en <strong class="highlight-cyan">mètres</strong>, on utilise le même type de tableau, mais on <strong class="highlight-pink">multiplie</strong> au lieu de diviser.
+                    </p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">1 a.l. = <span class="highlight-gold">9,46 × 10<sup>15</sup></span> m</div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToStep(3)">← Étape précédente</button>
+                        <button class="btn btn-next" onclick="goToSubpage(4, 2)">Voir la méthode <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 4.2 : Méthode avec tableau -->
+            <div class="subpage" id="step4-page2">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">📐</span>
+                        La méthode de conversion
+                    </h2>
+                    
+                    <p class="explanation">
+                        On place la distance en <strong class="highlight-cyan">mètres</strong> sur la <strong>première ligne</strong>, et la distance en <strong class="highlight-gold">années-lumière</strong> sur la <strong>deuxième ligne</strong>.
+                    </p>
+
+                    <!-- Tableau avec flèche courbe animée rose -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 25px 0;">
+                        
+                        <!-- Flèche courbe animée à gauche (rose) - BAS VERS HAUT -->
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: pulseArrow 2s infinite;">
+                            <span style="color: var(--nova-pink); font-size: 0.85rem; text-align: center;">× 9,46×10<sup>15</sup></span>
+                            <svg width="50" height="100" viewBox="0 0 60 120" style="overflow: visible;">
+                                <defs>
+                                    <marker id="arrowhead4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#ff6b9d"/>
+                                    </marker>
+                                </defs>
+                                <path d="M 50 105 Q 5 60 50 15" stroke="#ff6b9d" stroke-width="3" fill="none" marker-end="url(#arrowhead4)" style="filter: drop-shadow(0 0 6px rgba(255,107,157,0.5));"/>
+                            </svg>
+                        </div>
+
+                        <!-- Tableau -->
+                        <table style="border-collapse: collapse; font-size: 1rem;">
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 12px 20px; border-radius: 8px 0 0 0; color: #fff;">Distance (m)</th>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 12px 20px; border-radius: 0 8px 0 0; color: #fff;">Distance (m)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(0,245,255,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(0,245,255,0.3);">9,46 × 10<sup>15</sup></td>
+                                <td style="background: rgba(0,245,255,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(0,245,255,0.3); color: var(--plasma-cyan); font-weight: bold;">?</td>
+                            </tr>
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 12px 20px; color: var(--space-black);">Distance (a.l.)</th>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 12px 20px; color: var(--space-black);">Distance (a.l.)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(255,215,0,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(255,215,0,0.3); border-radius: 0 0 0 8px;">1</td>
+                                <td style="background: rgba(255,215,0,0.1); padding: 15px 20px; text-align: center; border: 1px solid rgba(255,215,0,0.3); border-radius: 0 0 8px 0; color: var(--star-gold);">Valeur à convertir</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="example-box" style="border-color: var(--nova-pink);">
+                        <p class="explanation" style="margin: 0;">
+                            <strong class="highlight-pink">💡 Principe :</strong> Pour passer de <strong>1</strong> à la <strong>valeur à convertir</strong> (ligne du bas), on <strong class="highlight-pink">multiplie</strong>.
+                        </p>
+                        <p class="explanation" style="margin-top: 10px; margin-bottom: 0;">
+                            Donc, pour trouver <strong>?</strong>, on doit <strong class="highlight-pink">multiplier 9,46 × 10<sup>15</sup> par cette valeur</strong>.
+                        </p>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(4, 1)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(4, 3)">Voir un exemple <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 4.3 : Exemple de calcul détaillé -->
+            <div class="subpage" id="step4-page3">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">📝</span>
+                        Exemple de conversion
+                    </h2>
+                    
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/New_shot_of_Proxima_Centauri%2C_our_nearest_neighbour.jpg/150px-New_shot_of_Proxima_Centauri%2C_our_nearest_neighbour.jpg" alt="Proxima Centauri" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 15px rgba(255,107,157,0.5);">
+                        <p class="explanation" style="margin: 0;">
+                            <strong>Exemple :</strong> Convertissons <strong class="highlight-gold">4,24 années-lumière</strong> (distance de Proxima Centauri, notre plus proche étoile) en mètres.
+                        </p>
+                    </div>
+
+                    <!-- Tableau avec deux flèches bas vers haut -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0;">
+                        <!-- Flèche gauche - BAS VERS HAUT -->
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: pulseArrow 2s infinite;">
+                            <span style="color: var(--nova-pink); font-size: 0.8rem; text-align: center;">× 9,46×10<sup>15</sup></span>
+                            <svg width="45" height="90" viewBox="0 0 60 120" style="overflow: visible;">
+                                <defs>
+                                    <marker id="arrowhead4b" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#ff6b9d"/>
+                                    </marker>
+                                </defs>
+                                <path d="M 50 105 Q 5 60 50 15" stroke="#ff6b9d" stroke-width="3" fill="none" marker-end="url(#arrowhead4b)" style="filter: drop-shadow(0 0 6px rgba(255,107,157,0.5));"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Tableau -->
+                        <table style="border-collapse: collapse; font-size: 1rem;">
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 10px 15px; color: #fff;">Distance (m)</th>
+                                <th style="background: linear-gradient(135deg, var(--plasma-cyan), #0099cc); padding: 10px 15px; color: #fff;">Distance (m)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(0,245,255,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(0,245,255,0.3);">9,46 × 10<sup>15</sup></td>
+                                <td style="background: rgba(0,245,255,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(0,245,255,0.3); color: var(--plasma-cyan); font-weight: bold;">?</td>
+                            </tr>
+                            <tr>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 10px 15px; color: var(--space-black);">Distance (a.l.)</th>
+                                <th style="background: linear-gradient(135deg, var(--star-gold), var(--comet-orange)); padding: 10px 15px; color: var(--space-black);">Distance (a.l.)</th>
+                            </tr>
+                            <tr>
+                                <td style="background: rgba(255,215,0,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(255,215,0,0.3);">1</td>
+                                <td style="background: rgba(255,215,0,0.1); padding: 12px 15px; text-align: center; border: 1px solid rgba(255,215,0,0.3); color: var(--star-gold);">4,24</td>
+                            </tr>
+                        </table>
+                        
+                        <!-- Flèche droite - BAS VERS HAUT -->
+                        <div style="display: flex; flex-direction: column; align-items: center; animation: pulseArrow 2s infinite; animation-delay: 0.5s;">
+                            <span style="color: var(--star-gold); font-size: 0.8rem; text-align: center;">× 9,46×10<sup>15</sup></span>
+                            <svg width="45" height="90" viewBox="0 0 60 120" style="overflow: visible;">
+                                <defs>
+                                    <marker id="arrowhead4c" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#ffd700"/>
+                                    </marker>
+                                </defs>
+                                <path d="M 10 105 Q 55 60 10 15" stroke="#ffd700" stroke-width="3" fill="none" marker-end="url(#arrowhead4c)" style="filter: drop-shadow(0 0 6px rgba(255,215,0,0.5));"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="example-box" style="border-color: var(--success-green); background: rgba(0,255,136,0.08);">
+                        <div class="example-title" style="color: var(--success-green);">📐 Calcul</div>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 10px 0; text-align: center;">
+                            ? = 4,24 × (9,46 × 10<sup>15</sup>)
+                        </p>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 10px 0; text-align: center;">
+                            ? = (4,24 × 9,46) × 10<sup>15</sup>
+                        </p>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 10px 0; text-align: center;">
+                            ? ≈ 40,1 × 10<sup>15</sup>
+                        </p>
+                        <p style="font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin: 15px 0; text-align: center; color: var(--success-green);">
+                            ? ≈ <strong>4,01 × 10<sup>16</sup> m</strong>
+                        </p>
+                    </div>
+                    
+                    <p class="explanation" style="font-size: 0.95rem; color: rgba(255,255,255,0.7);">
+                        💡 <strong>Astuce :</strong> 40,1 × 10<sup>15</sup> = 4,01 × 10<sup>16</sup> (on décale la virgule)
+                    </p>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(4, 2)">← Précédent</button>
+                        <button class="btn btn-next" onclick="goToSubpage(4, 4)">À toi de jouer ! <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sous-page 4.4 : Exercices -->
+            <div class="subpage" id="step4-page4">
+                <div class="content-card">
+                    <h2 class="page-title">
+                        <span class="icon">🎯</span>
+                        Convertis en mètres
+                    </h2>
+                    
+                    <div class="exercise-box" id="exercise4Container"></div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-prev" onclick="goToSubpage(4, 3)">← Revoir l'exemple</button>
+                        <button class="btn btn-next" id="btnNextStep4" style="display: none;" onclick="goToStep(5)">Quiz final <span class="arrow-animation">→</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ÉTAPE 5 : QUIZ FINAL ==================== -->
+        <div class="step-content" id="step5" style="display: none;">
+            <div class="content-card">
+                <h2 class="page-title">
+                    <span class="icon">🏆</span>
+                    Quiz Final
+                </h2>
+                
+                <div id="quizFinalContainer"></div>
+                <div id="finalResults" style="display: none;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== VARIABLES GLOBALES ====================
+        let currentStep = 1;
+        let currentSubpage = {};
+        let score = 0;
+        let completedSteps = {};
+        let visitedSteps = { 1: false, 2: false, 3: false, 4: false, 5: false };
+        let scoreByStep = { 1: 0, 2: 0, '2n': 0, '2q': 0, 3: 0, 4: 0, 5: 0, ly: 0 };
+        
+        // Indices des exercices
+        let exercise1Index = 0;
+        let exercise2NotationIndex = 0;
+        let exercise2Index = 0;
+        let exercise3Index = 0;
+        let exercise4Index = 0;
+        let quizIndex = 0;
+        let lyQuizIndex = 0;
+        
+        // Compteurs de réponses correctes (vs passées)
+        let correctAnswers = { 1: 0, 2: 0, '2n': 0, 3: 0, 4: 0, 5: 0, ly: 0 };
+        let totalQuestions = { 1: 6, 2: 3, '2n': 3, 3: 3, 4: 3, 5: 15, ly: 3 };
+        
+        // Anti double-clic
+        let isProcessing = false;
+        
+        // QCM bonus étape 2
+        let selectedQCM2 = -1;
+        let qcm2Answered = false;
+        
+        let attempts = {};
+        
+        // Fonction pour calculer la couleur selon le ratio de bonnes réponses
+        function getScoreColor(correct, total) {
+            if (total === 0) return 'rgba(128, 128, 128, 0.5)';
+            const ratio = correct / total;
+            // Dégradé de rouge (0%) à vert (100%)
+            // Rouge: rgb(220, 53, 69), Jaune: rgb(255, 193, 7), Vert: rgb(40, 167, 69)
+            if (ratio < 0.5) {
+                // Rouge vers jaune
+                const r = Math.round(220 + (255 - 220) * (ratio * 2));
+                const g = Math.round(53 + (193 - 53) * (ratio * 2));
+                const b = Math.round(69 + (7 - 69) * (ratio * 2));
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+            } else {
+                // Jaune vers vert
+                const adjustedRatio = (ratio - 0.5) * 2;
+                const r = Math.round(255 + (40 - 255) * adjustedRatio);
+                const g = Math.round(193 + (167 - 193) * adjustedRatio);
+                const b = Math.round(7 + (69 - 7) * adjustedRatio);
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+            }
+        }
+
+        // ==================== DONNÉES DES EXERCICES ====================
+        const exercises1 = [
+            { number: "47 000", answer: { a: "4,7", n: "4" }},
+            { number: "3 200 000", answer: { a: "3,2", n: "6" }},
+            { number: "0,00056", answer: { a: "5,6", n: "-4" }},
+            { number: "891 000 000", answer: { a: "8,91", n: "8" }},
+            { number: "0,0000072", answer: { a: "7,2", n: "-6" }},
+            { number: "15 400", answer: { a: "1,54", n: "4" }}
+        ];
+
+        const exercises2 = [
+            { name: "Système Solaire", km: "9,09 × 10⁹ km", answer: { a: "9,09", n: "12" }, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Solar_sys8.jpg/100px-Solar_sys8.jpg"},
+            { name: "Étoile de Barnard", km: "5,68 × 10¹³ km", answer: { a: "5,68", n: "16" }, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg/330px-Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg"},
+            { name: "Voie Lactée", km: "10¹⁸ km", answer: { a: "1", n: "21" }, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/ESO-VLT-Laser-phot-33a-07.jpg/100px-ESO-VLT-Laser-phot-33a-07.jpg"}
+        ];
+
+        // Exercices notation scientifique étape 2
+        const exercises2Notation = [
+            { name: "Système Solaire", number: "9,09 milliards de km", answer: { a: "9,09", n: "9" }, unit: "km", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Solar_sys8.jpg/100px-Solar_sys8.jpg"},
+            { name: "Étoile de Barnard", number: "56800 milliards de km", answer: { a: "5,68", n: "13" }, unit: "km", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg/330px-Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg"},
+            { name: "Voie Lactée", number: "1 milliard de milliards de km", answer: { a: "1", n: "18" }, unit: "km", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/ESO-VLT-Laser-phot-33a-07.jpg/100px-ESO-VLT-Laser-phot-33a-07.jpg"}
+        ];
+
+        const exercises3 = [
+            { name: "Étoile de Barnard", meters: "5,68 × 10¹⁶", answerSimple: 6.00422, answerAL: "≈ 6 a.l.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg/330px-Artist%E2%80%99s_impression_of_a_sub-Earth-mass_planet_orbiting_Barnard%E2%80%99s_star_%28eso2414a%29.jpg" },
+            { name: "Sirius", meters: "8,13 × 10¹⁶", answerSimple: 8.59408, answerAL: "≈ 8,6 a.l.", img: "https://upload.wikimedia.org/wikipedia/commons/1/18/Sirius_A_and_B_Hubble_photo.editted.PNG" },
+            { name: "Voie Lactée", meters: "9,46 × 10²⁰", answerSimple: 100000, answerAL: "≈ 100 000 a.l.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/ESO-VLT-Laser-phot-33a-07.jpg/100px-ESO-VLT-Laser-phot-33a-07.jpg" }
+        ];
+
+        const exercises4 = [
+            { name: "Vega", al: "25", answer: { value: 2.365, exp: "17" }, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Vega_%28star%29.jpg/100px-Vega_%28star%29.jpg"},
+            { name: "Altaïr", al: "17", answer: { value: 1.6082, exp: "17" }, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Altair_from_Celestia.jpg/100px-Altair_from_Celestia.jpg"},
+            { name: "Andromède", al: "2 500 000", answer: { value: 2.365, exp: "22" }, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg/100px-Andromeda_Galaxy_%28with_h-alpha%29.jpg"}
+        ];
+
+        const lightYearQuiz = [
+            {
+                question: "La lumière d'une étoile a voyagé pendant <strong class='highlight-cyan'>14 années</strong> pour parvenir jusqu'à nous. À quelle distance se situe-t-elle ?",
+                options: ["14 kilomètres", "14 millions de km", "14 années-lumière", "14 secondes-lumière"],
+                correct: 2,
+                explanation: "Si la lumière a mis 14 ans à nous parvenir, l'étoile est à 14 années-lumière de nous !"
+            },
+            {
+                question: "Tu observes une étoile située à <strong class='highlight-cyan'>50 années-lumière</strong>. Tu la vois...",
+                options: ["Telle qu'elle est maintenant", "Telle qu'elle était il y a 50 ans", "Telle qu'elle sera dans 50 ans", "On ne peut pas savoir"],
+                correct: 1,
+                explanation: "Voir loin, c'est voir dans le passé ! Sa lumière a mis 50 ans à nous parvenir."
+            },
+            {
+                question: "Une étoile explose à <strong class='highlight-cyan'>100 années-lumière</strong> de la Terre. Quand verrons-nous l'explosion ?",
+                options: ["Immédiatement", "Dans 100 secondes", "Dans 100 jours", "Dans 100 ans"],
+                correct: 3,
+                explanation: "La lumière de l'explosion mettra 100 ans pour nous parvenir !"
+            }
+        ];
+
+        const quizQuestions = [
+            // Notation scientifique (3 questions)
+            { type: 'toSci', number: "250 000", answer: { a: "2,5", n: "5" }},
+            { type: 'toSci', number: "0,00089", answer: { a: "8,9", n: "-4" }},
+            { type: 'toSci', number: "7 800 000 000", answer: { a: "7,8", n: "9" }},
+            // m → a.l. (3 questions - réponses simples sans notation scientifique)
+            { type: 'mToAL', meters: "1,89 × 10¹⁷", simpleAnswer: 19.9788, hint: "Divise par 9,46×10¹⁵" },
+            { type: 'mToAL', meters: "4,73 × 10¹⁶", simpleAnswer: 5, hint: "Divise par 9,46×10¹⁵" },
+            { type: 'mToAL', meters: "7,1 × 10¹⁷", simpleAnswer: 75.053, hint: "Divise par 9,46×10¹⁵" },
+            // a.l. → m (3 questions) - valeurs exactes
+            { type: 'alToM', al: "8", answer: { value: 7.568, exp: "16" }, hint: "Multiplie par 9,46×10¹⁵" },
+            { type: 'alToM', al: "50", answer: { value: 4.73, exp: "17" }, hint: "Multiplie par 9,46×10¹⁵" },
+            { type: 'alToM', al: "4,3", answer: { value: 4.0678, exp: "16" }, hint: "Multiplie par 9,46×10¹⁵" },
+            // km → a.l. (3 questions - réponses simples)
+            { type: 'kmToAL', km: "2,84 × 10¹⁴", simpleAnswer: 30.021, hint: "Divise par 9,46×10¹²" },
+            { type: 'kmToAL', km: "3,78 × 10¹³", simpleAnswer: 3.996, hint: "Divise par 9,46×10¹²" },
+            { type: 'kmToAL', km: "6,62 × 10¹⁴", simpleAnswer: 69.979, hint: "Divise par 9,46×10¹²" },
+            // a.l. → km (3 questions) - valeurs exactes
+            { type: 'alToKM', al: "12", answer: { value: 1.1352, exp: "14" }, hint: "Multiplie par 9,46×10¹²" },
+            { type: 'alToKM', al: "25", answer: { value: 2.365, exp: "14" }, hint: "Multiplie par 9,46×10¹²" },
+            { type: 'alToKM', al: "200", answer: { value: 1.892, exp: "15" }, hint: "Multiplie par 9,46×10¹²" }
+        ];
+
+        const encouragements = [
+            "Excellent travail ! 🌟", "Tu gères ! 🚀", "Parfait ! ⭐", 
+            "Continue comme ça ! 💫", "Impressionnant ! 🎯", "Bravo ! 🎉"
+        ];
+
+        // ==================== FONCTION UTILITAIRE ARRONDI ====================
+        // Vérifie si userVal est un arrondi correct de correctVal
+        // Exemples avec correctVal = 1.6082 :
+        // - userVal = 1.6 → OK (arrondi correct à 1 décimale)
+        // - userVal = 1.61 → OK (arrondi correct à 2 décimales)  
+        // - userVal = 1.608 → OK (arrondi correct à 3 décimales)
+        // - userVal = 1.6082 → OK (valeur exacte)
+        // - userVal = 1.7 → NON (mauvais arrondi)
+        // Exemples avec correctVal = 5 :
+        // - userVal = 5 → OK
+        // - userVal = 5.0 → OK
+        // - userVal = 5.00001 → NON (décimales non justifiées)
+        // Exemples avec correctVal = 19.9788 :
+        // - userVal = 20 → OK (très proche d'un entier)
+        // - userVal = 19.98 → OK
+        function isValidRounding(userVal, correctVal) {
+            if (isNaN(userVal) || isNaN(correctVal)) return false;
+            
+            // Convertir en chaîne pour compter les décimales de l'utilisateur
+            const userStr = String(userVal);
+            const decimalPos = userStr.indexOf('.');
+            const userDecimals = decimalPos === -1 ? 0 : userStr.length - decimalPos - 1;
+            
+            // Compter les décimales significatives de la valeur correcte
+            const correctStr = String(correctVal);
+            const correctDecimalPos = correctStr.indexOf('.');
+            const correctDecimals = correctDecimalPos === -1 ? 0 : correctStr.length - correctDecimalPos - 1;
+            
+            // Si l'utilisateur donne un entier, vérifier si c'est acceptable
+            const decimalPart = Math.abs(correctVal - Math.floor(correctVal));
+            if (userDecimals === 0) {
+                // Accepter l'entier si la partie décimale est < 0.05 (proche d'un entier inférieur)
+                // ou > 0.95 (proche d'un entier supérieur, ex: 19.9788 → 20)
+                // Sinon exiger au moins 1 décimale
+                if (decimalPart > 0.05 && decimalPart < 0.95) {
+                    return false;
+                }
+            }
+            
+            // Calculer l'arrondi correct au même nombre de décimales que l'utilisateur
+            const factor = Math.pow(10, userDecimals);
+            const roundedCorrect = Math.round(correctVal * factor) / factor;
+            
+            // Si l'utilisateur donne plus de décimales que la valeur correcte,
+            // les décimales supplémentaires doivent être des zéros
+            if (userDecimals > correctDecimals) {
+                if (Math.abs(userVal - roundedCorrect) > 1e-12) {
+                    return false;
+                }
+            }
+            
+            // Comparer la valeur utilisateur avec l'arrondi correct
+            return Math.abs(userVal - roundedCorrect) < 1e-9;
+        }
+
+        // ==================== FONCTIONS DE NAVIGATION ====================
+        function startGame() {
+            document.getElementById('splashScreen').classList.add('hidden');
+            document.getElementById('headerCompact').classList.add('visible');
+            document.getElementById('mainContainer').classList.add('visible');
+            initProgressDots();
+            goToStep(1);
+        }
+
+        function initProgressDots() {
+            const container = document.getElementById('progressDots');
+            container.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'step-dot' + (i === 1 ? ' active' : '');
+                dot.textContent = i;
+                dot.id = 'stepDot' + i;
+                dot.style.cursor = 'pointer';
+                dot.onclick = function() { 
+                    goToStep(i); 
+                };
+                container.appendChild(dot);
+            }
+        }
+
+        function updateProgressDots() {
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach(function(dot, i) {
+                const stepNum = i + 1;
+                dot.classList.remove('active', 'completed');
+                dot.style.background = '';
+                dot.style.color = '';
+                dot.style.cursor = 'pointer';
+                
+                if (stepNum === currentStep) {
+                    dot.classList.add('active');
+                } else if (completedSteps[stepNum]) {
+                    // Niveau complété : afficher la couleur selon le score
+                    const correct = correctAnswers[stepNum];
+                    const total = totalQuestions[stepNum];
+                    const color = getScoreColor(correct, total);
+                    dot.style.background = color;
+                    dot.style.color = 'white';
+                } else if (visitedSteps[stepNum] && correctAnswers[stepNum] > 0) {
+                    // Niveau visité avec au moins une réponse : orange clair
+                    dot.style.background = 'rgba(255, 193, 7, 0.6)';
+                    dot.style.color = 'white';
+                }
+                // Si visité mais 0 réponse, on ne change pas le fond (reste noir)
+            });
+        }
+
+        function goToStep(stepNum) {
+            // Cacher toutes les étapes
+            document.querySelectorAll('.step-content').forEach(el => el.style.display = 'none');
+            
+            // Afficher l'étape demandée
+            const stepEl = document.getElementById('step' + stepNum);
+            if (stepEl) {
+                stepEl.style.display = 'block';
+                currentStep = stepNum;
+                
+                // Marquer comme visité
+                visitedSteps[stepNum] = true;
+                
+                // Initialiser à la première sous-page si pas déjà défini
+                if (!currentSubpage[stepNum]) currentSubpage[stepNum] = 1;
+                showSubpage(stepNum, currentSubpage[stepNum]);
+                
+                updateProgressDots();
+                
+                // Toujours appeler render pour afficher l'état actuel des exercices
+                if (stepNum === 1) renderExercise1();
+                if (stepNum === 2) renderExercise2();
+                if (stepNum === 3) renderLightYearQuiz();
+                if (stepNum === 4) renderExercise4();
+                if (stepNum === 5) renderQuizFinal();
+            }
+        }
+
+        function goToSubpage(stepNum, pageNum) {
+            currentSubpage[stepNum] = pageNum;
+            showSubpage(stepNum, pageNum);
+            
+            // Initialiser exercices si on arrive sur la page exercices
+            if (stepNum === 1 && pageNum === 4) renderExercise1();
+            if (stepNum === 2 && pageNum === 2) renderExercise2Notation();
+            if (stepNum === 2 && pageNum === 5) renderExercise2();
+            if (stepNum === 3 && pageNum === 3) renderLightYearQuiz();
+            if (stepNum === 3 && pageNum === 6) renderExercise3();
+            if (stepNum === 4 && pageNum === 4) renderExercise4();
+        }
+
+        function showSubpage(stepNum, pageNum) {
+            const stepEl = document.getElementById('step' + stepNum);
+            if (!stepEl) return;
+            
+            stepEl.querySelectorAll('.subpage').forEach(page => page.classList.remove('active'));
+            const targetPage = document.getElementById('step' + stepNum + '-page' + pageNum);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // ==================== FONCTION RECOMMENCER ====================
+        function restartStep(step) {
+            // Soustraire les points acquis dans ce niveau
+            score -= scoreByStep[step];
+            scoreByStep[step] = 0;
+            correctAnswers[step] = 0;
+            completedSteps[step] = false;
+            isProcessing = false;
+            updateScore();
+            updateProgressDots();
+            
+            if (step === 1) {
+                exercise1Index = 0;
+                goToSubpage(1, 1);
+            } else if (step === 2) {
+                exercise2NotationIndex = 0;
+                exercise2Index = 0;
+                score -= scoreByStep['2n'];
+                score -= scoreByStep['2q'];
+                scoreByStep['2n'] = 0;
+                scoreByStep['2q'] = 0;
+                correctAnswers['2n'] = 0;
+                qcm2Answered = false;
+                selectedQCM2 = -1;
+                var btn1 = document.getElementById('btnToStep2Bonus');
+                var btn2 = document.getElementById('btnToStep2Method');
+                var btn3 = document.getElementById('btnNextStep2');
+                if (btn1) btn1.style.display = 'none';
+                if (btn2) btn2.style.display = 'none';
+                if (btn3) btn3.style.display = 'none';
+                goToSubpage(2, 1);
+            } else if (step === 3) {
+                exercise3Index = 0;
+                lyQuizIndex = 0;
+                score -= scoreByStep['ly'];
+                scoreByStep['ly'] = 0;
+                correctAnswers['ly'] = 0;
+                goToSubpage(3, 1);
+            } else if (step === 4) {
+                exercise4Index = 0;
+                goToSubpage(4, 1);
+            } else if (step === 5) {
+                quizIndex = 0;
+                // Réafficher le container du quiz et cacher les résultats
+                const quizContainer = document.getElementById('quizFinalContainer');
+                const results = document.getElementById('finalResults');
+                if (quizContainer) quizContainer.style.display = 'block';
+                if (results) results.style.display = 'none';
+                // Afficher la première question
+                renderQuizFinal();
+            }
+        }
+
+        // ==================== MÉTHODE EN SURIMPRESSION ====================
+        function showMethod(step) {
+            const content = document.getElementById('methodContent');
+            let html = '';
+            
+            if (step === 1) {
+                html = `
+                    <p><strong class="highlight-gold">Format :</strong> a × 10<sup>n</sup></p>
+                    <p>• <strong>a</strong> est entre 1 et 10</p>
+                    <p>• Virgule vers la <strong style="color: var(--success-green);">gauche</strong> → exposant <strong style="color: var(--success-green);">positif</strong></p>
+                    <p>• Virgule vers la <strong style="color: var(--error-red);">droite</strong> → exposant <strong style="color: var(--error-red);">négatif</strong></p>
+                `;
+            } else if (step === 2) {
+                html = `
+                    <p><strong class="highlight-gold">km → m</strong></p>
+                    <p>• 1 km = 10³ m</p>
+                    <p>• Multiplie par 10³ (ajoute 3 à l'exposant)</p>
+                `;
+            } else if (step === 3) {
+                html = `
+                    <p><strong class="highlight-gold">m → a.l.</strong></p>
+                    <p>• 1 a.l. = 9,46 × 10<sup>15</sup> m</p>
+                    <p>• <strong>Divise</strong> par 9,46 × 10<sup>15</sup></p>
+                    <p>• Soustrais les exposants</p>
+                `;
+            } else if (step === 4) {
+                html = `
+                    <p><strong class="highlight-gold">a.l. → m</strong></p>
+                    <p>• 1 a.l. = 9,46 × 10<sup>15</sup> m</p>
+                    <p>• <strong>Multiplie</strong> par 9,46 × 10<sup>15</sup></p>
+                    <p>• Additionne les exposants</p>
+                `;
+            }
+            
+            content.innerHTML = html;
+            document.getElementById('methodOverlay').classList.add('show');
+        }
+
+        function closeMethod() {
+            document.getElementById('methodOverlay').classList.remove('show');
+        }
+
+        function closeMethodIfOutside(e) {
+            if (e.target.id === 'methodOverlay') closeMethod();
+        }
+
+        function toggleHint() {
+            const hint = document.getElementById('conversionHint');
+            if (hint) {
+                hint.style.display = hint.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('scoreDisplay').textContent = score;
+        }
+
+        function showEncouragement() {
+            // Petit feedback visuel
+        }
+
+        // ==================== EXERCICES ÉTAPE 1 ====================
+        function renderExercise1() {
+            const container = document.getElementById('exercise1Container');
+            if (exercise1Index >= exercises1.length) {
+                const total = exercises1.length;
+                const correct = correctAnswers[1];
+                let message, icon;
+                
+                if (correct === total) {
+                    message = `<strong>Bravo !</strong> Tu maîtrises la notation scientifique !`;
+                    icon = '🎉';
+                } else if (correct >= total / 2) {
+                    message = `<strong>Bien joué !</strong> Tu as réussi ${correct} question${correct > 1 ? 's' : ''} sur ${total}.`;
+                    icon = '👍';
+                } else {
+                    message = `Tu as réussi ${correct} question${correct > 1 ? 's' : ''} sur ${total}. N'hésite pas à recommencer !`;
+                    icon = '💪';
+                }
+                
+                container.innerHTML = `
+                    <div class="feedback ${correct === total ? 'correct' : ''} show">
+                        <span>${icon}</span> ${message}
+                    </div>
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="restartStep(1)">🔄 Recommencer cette étape</button>
+                    </div>
+                `;
+                document.getElementById('btnNextStep1').style.display = 'flex';
+                completedSteps[1] = true;
+                updateProgressDots();
+                return;
+            }
+
+            const ex = exercises1[exercise1Index];
+            
+            let html = '<div class="question-header">' +
+                '<span class="question-number">Question ' + (exercise1Index + 1) + ' / ' + exercises1.length + '</span>' +
+                '<button class="btn btn-secondary" onclick="showMethod(1)" style="padding: 6px 12px; font-size: 0.8rem;">💡 Rappel</button>' +
+                '</div>' +
+                '<div class="question-text">' +
+                'Écris <span class="highlight-gold" style="font-size: 1.3rem;">' + ex.number + '</span> en notation scientifique' +
+                '</div>' +
+                '<div class="sci-input-zone">' +
+                '<input type="text" class="native-input native-input-a val-input" placeholder="a" inputmode="decimal">' +
+                '<span class="times">×</span>' +
+                '<span class="exp-container">' +
+                '<span class="exp-ten">10</span>' +
+                '<input type="text" class="native-input native-input-n exp-input" placeholder="n" inputmode="numeric">' +
+                '</span>' +
+                '</div>' +
+                '<div class="feedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary check-btn" onclick="checkExercise1()">Vérifier</button>' +
+                '<button class="btn btn-secondary" onclick="skipExercise(1)">Passer →</button>' +
+                '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function checkExercise1() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const container = document.getElementById('exercise1Container');
+            const btn = container.querySelector('.check-btn');
+            if (btn) btn.disabled = true;
+            
+            const ex = exercises1[exercise1Index];
+            const inputA = container.querySelector('.val-input').value.replace(/,/g, '.').trim();
+            const inputN = container.querySelector('.exp-input').value.replace(/,/g, '.').trim();
+            const feedback = container.querySelector('.feedback');
+
+            const correctA = parseFloat(ex.answer.a.replace(/,/g, '.'));
+            const correctN = parseInt(ex.answer.n);
+            const userA = parseFloat(inputA);
+            const userN = parseInt(inputN);
+
+            // Vérification exacte (pas d'arrondi accepté)
+            const aCorrect = !isNaN(userA) && Math.abs(userA - correctA) < 0.001;
+            const nCorrect = !isNaN(userN) && userN === correctN;
+
+            if (aCorrect && nCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Correct !</strong> ' + ex.number + ' = ' + ex.answer.a + ' × 10<sup>' + ex.answer.n + '</sup>';
+                score += 10;
+                scoreByStep[1] += 10;
+                correctAnswers[1]++;
+                updateScore();
+                setTimeout(() => { isProcessing = false; exercise1Index++; renderExercise1(); }, 1500);
+            } else {
+                isProcessing = false;
+                if (btn) btn.disabled = false;
+                feedback.className = 'feedback incorrect show';
+                let hint = '❌ <strong>Essaie encore.</strong>';
+                if (isNaN(userA) || inputA === '') hint += ' N\'oublie pas la valeur de a.';
+                else if (isNaN(userN) || inputN === '') hint += ' N\'oublie pas l\'exposant.';
+                else if (!aCorrect) hint += ' Vérifie la valeur de a (doit être entre 1 et 10).';
+                else if (!nCorrect) hint += ' Vérifie l\'exposant.';
+                feedback.innerHTML = hint;
+            }
+        }
+
+        // ==================== EXERCICES NOTATION ÉTAPE 2 ====================
+        function renderExercise2Notation() {
+            const container = document.getElementById('exercise2NotationContainer');
+            if (exercise2NotationIndex >= exercises2Notation.length) {
+                const total = exercises2Notation.length;
+                const correct = correctAnswers['2n'];
+                let message, icon;
+                
+                if (correct === total) {
+                    message = '<strong>Parfait !</strong> Tu maîtrises la notation scientifique !';
+                    icon = '🎉';
+                } else {
+                    message = 'Tu as réussi ' + correct + ' question' + (correct > 1 ? 's' : '') + ' sur ' + total + '.';
+                    icon = correct >= total / 2 ? '👍' : '💪';
+                }
+                
+                container.innerHTML = '<div class="feedback ' + (correct === total ? 'correct' : '') + ' show">' +
+                    '<span>' + icon + '</span> ' + message +
+                    '</div>' +
+                    '<div class="action-buttons" style="margin-top: 15px;">' +
+                    '<button class="btn btn-secondary" onclick="restartExercise2Notation()">🔄 Recommencer ces exercices</button>' +
+                    '</div>';
+                document.getElementById('btnToStep2Bonus').style.display = 'flex';
+                return;
+            }
+
+            const ex = exercises2Notation[exercise2NotationIndex];
+            
+            let html = '<div class="question-header">' +
+                '<span class="question-number">Question ' + (exercise2NotationIndex + 1) + ' / ' + exercises2Notation.length + '</span>' +
+                '</div>' +
+                '<div class="question-text" style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap;">';
+            
+            if (ex.img) {
+                html += '<img src="' + ex.img + '" alt="' + ex.name + '" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(255,215,0,0.4);">';
+            }
+            
+            html += '<span><strong class="highlight-cyan">' + ex.name + '</strong> : écris <strong class="highlight-gold">' + ex.number + '</strong> en notation scientifique</span>' +
+                '</div>' +
+                '<div class="sci-input-zone">' +
+                '<input type="text" class="native-input native-input-a val-input" placeholder="a" inputmode="decimal">' +
+                '<span class="times">×</span>' +
+                '<span class="exp-container">' +
+                '<span class="exp-ten">10</span>' +
+                '<input type="text" class="native-input native-input-n exp-input" placeholder="n" inputmode="numeric">' +
+                '</span>' +
+                '<span class="input-unit">km</span>' +
+                '</div>' +
+                '<div class="feedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary check-btn" onclick="checkExercise2Notation()">Vérifier</button>' +
+                '<button class="btn btn-secondary" onclick="skipExercise2Notation()">Passer →</button>' +
+                '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function checkExercise2Notation() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const container = document.getElementById('exercise2NotationContainer');
+            const btn = container.querySelector('.check-btn');
+            if (btn) btn.disabled = true;
+            
+            const ex = exercises2Notation[exercise2NotationIndex];
+            const inputA = container.querySelector('.val-input').value.replace(/,/g, '.').trim();
+            const inputN = container.querySelector('.exp-input').value.trim();
+            const feedback = container.querySelector('.feedback');
+
+            // Comparaison EXACTE des chaînes (pas d'arrondi accepté)
+            const correctA = ex.answer.a.replace(/,/g, '.');
+            const correctN = ex.answer.n;
+            
+            const aCorrect = (inputA === correctA);
+            const nCorrect = (inputN === correctN);
+
+            if (aCorrect && nCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Correct !</strong> ' + ex.number + ' = ' + ex.answer.a + ' × 10<sup>' + ex.answer.n + '</sup> km';
+                score += 10;
+                scoreByStep['2n'] += 10;
+                correctAnswers['2n']++;
+                updateScore();
+                setTimeout(function() { isProcessing = false; exercise2NotationIndex++; renderExercise2Notation(); }, 1500);
+            } else {
+                isProcessing = false;
+                if (btn) btn.disabled = false;
+                feedback.className = 'feedback incorrect show';
+                let hint = '❌ <strong>Essaie encore.</strong>';
+                if (inputA === '') hint += ' N\'oublie pas la valeur de a.';
+                else if (inputN === '') hint += ' N\'oublie pas l\'exposant.';
+                else if (!aCorrect) hint += ' Vérifie la valeur de a (doit être entre 1 et 10).';
+                else if (!nCorrect) hint += ' Vérifie l\'exposant.';
+                feedback.innerHTML = hint;
+            }
+        }
+
+        function skipExercise2Notation() {
+            isProcessing = false;
+            exercise2NotationIndex++;
+            renderExercise2Notation();
+        }
+
+        function restartExercise2Notation() {
+            score -= scoreByStep['2n'];
+            scoreByStep['2n'] = 0;
+            correctAnswers['2n'] = 0;
+            exercise2NotationIndex = 0;
+            document.getElementById('btnToStep2Bonus').style.display = 'none';
+            updateScore();
+            renderExercise2Notation();
+        }
+
+        function restartExercise2() {
+            score -= scoreByStep[2];
+            scoreByStep[2] = 0;
+            correctAnswers[2] = 0;
+            exercise2Index = 0;
+            completedSteps[2] = false;
+            document.getElementById('btnNextStep2').style.display = 'none';
+            updateScore();
+            updateProgressDots();
+            renderExercise2();
+        }
+
+        // ==================== EXERCICES ÉTAPE 2 ====================
+        function renderExercise2() {
+            const container = document.getElementById('exercise2Container');
+            if (exercise2Index >= exercises2.length) {
+                const total = exercises2.length;
+                const correct = correctAnswers[2];
+                let message, icon;
+                
+                if (correct === total) {
+                    message = '<strong>Parfait !</strong> Tu sais convertir km → m !';
+                    icon = '🎉';
+                } else {
+                    message = 'Tu as réussi ' + correct + ' question' + (correct > 1 ? 's' : '') + ' sur ' + total + '.';
+                    icon = correct >= total / 2 ? '👍' : '💪';
+                }
+                
+                container.innerHTML = '<div class="feedback ' + (correct === total ? 'correct' : '') + ' show">' +
+                    '<span>' + icon + '</span> ' + message +
+                    '</div>' +
+                    '<div class="action-buttons" style="margin-top: 15px;">' +
+                    '<button class="btn btn-secondary" onclick="restartExercise2()">🔄 Recommencer ces exercices</button>' +
+                    '</div>';
+                document.getElementById('btnNextStep2').style.display = 'flex';
+                completedSteps[2] = true;
+                updateProgressDots();
+                return;
+            }
+
+            const ex = exercises2[exercise2Index];
+            
+            let html = '<div class="question-header">' +
+                '<span class="question-number">Question ' + (exercise2Index + 1) + ' / ' + exercises2.length + '</span>' +
+                '<button class="btn btn-secondary" onclick="showMethod(2)" style="padding: 6px 12px; font-size: 0.8rem;">💡 Rappel</button>' +
+                '</div>' +
+                '<div class="question-text" style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap;">';
+            
+            if (ex.img) {
+                html += '<img src="' + ex.img + '" alt="' + ex.name + '" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(0,245,255,0.4);">';
+            }
+            
+            html += '<span><strong class="highlight-gold">' + ex.name + '</strong> : ' + ex.km + ' → <strong class="highlight-cyan">? m</strong></span>' +
+                '</div>' +
+                '<div class="sci-input-zone">' +
+                '<input type="text" class="native-input native-input-a val-input" placeholder="a" inputmode="decimal">' +
+                '<span class="times">×</span>' +
+                '<span class="exp-container">' +
+                '<span class="exp-ten">10</span>' +
+                '<input type="text" class="native-input native-input-n exp-input" placeholder="n" inputmode="numeric">' +
+                '</span>' +
+                '<span class="input-unit">m</span>' +
+                '</div>' +
+                '<div class="feedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary check-btn" onclick="checkExercise2()">Vérifier</button>' +
+                '<button class="btn btn-secondary" onclick="skipExercise(2)">Passer →</button>' +
+                '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function checkExercise2() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const container = document.getElementById('exercise2Container');
+            const btn = container.querySelector('.check-btn');
+            if (btn) btn.disabled = true;
+            
+            const ex = exercises2[exercise2Index];
+            const inputA = container.querySelector('.val-input').value.replace(/,/g, '.').trim();
+            const inputN = container.querySelector('.exp-input').value.replace(/,/g, '.').trim();
+            const feedback = container.querySelector('.feedback');
+
+            const correctA = parseFloat(ex.answer.a.replace(/,/g, '.'));
+            const correctN = parseInt(ex.answer.n);
+            const userA = parseFloat(inputA);
+            const userN = parseInt(inputN);
+
+            // Réponse EXACTE requise (pas d'arrondi car c'est juste un changement d'exposant)
+            // La valeur doit être strictement identique
+            const aCorrect = !isNaN(userA) && Math.abs(userA - correctA) < 0.0001;
+            const nCorrect = !isNaN(userN) && userN === correctN;
+
+            if (aCorrect && nCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Correct !</strong>';
+                score += 15;
+                scoreByStep[2] += 15;
+                correctAnswers[2]++;
+                updateScore();
+                setTimeout(() => { isProcessing = false; exercise2Index++; renderExercise2(); }, 1500);
+            } else {
+                isProcessing = false;
+                if (btn) btn.disabled = false;
+                feedback.className = 'feedback incorrect show';
+                let hint = '❌ <strong>Pas tout à fait.</strong>';
+                if (!aCorrect) hint += ' La valeur doit rester exactement ' + ex.answer.a + '.';
+                if (!nCorrect && !isNaN(userN)) hint += ' Rappel : ajoute 3 à l\'exposant (km → m).';
+                feedback.innerHTML = hint;
+            }
+        }
+
+        function selectQCM2(el, idx) {
+            if (qcm2Answered) return;
+            document.querySelectorAll('#qcm2Options .qcm-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedQCM2 = idx;
+        }
+
+        function checkQCM2() {
+            if (qcm2Answered) return;
+            const feedback = document.getElementById('qcm2Feedback');
+            if (selectedQCM2 === 1) {
+                qcm2Answered = true;
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Exact !</strong> La notation scientifique évite les erreurs avec les grands nombres.';
+                score += 10;
+                scoreByStep['2q'] += 10;
+                updateScore();
+                document.getElementById('btnToStep2Method').style.display = 'flex';
+            } else {
+                feedback.className = 'feedback incorrect show';
+                feedback.innerHTML = '❌ Pas tout à fait. Réessaie !';
+            }
+        }
+
+        // ==================== MINI-QUIZ ANNÉE-LUMIÈRE ====================
+        function renderLightYearQuiz() {
+            const container = document.getElementById('lightYearQuizContainer');
+            if (lyQuizIndex >= lightYearQuiz.length) {
+                const total = lightYearQuiz.length;
+                const correct = correctAnswers['ly'];
+                let message, icon, feedbackClass;
+                
+                if (correct === total) {
+                    message = 'Tu as compris ce qu\'est une année-lumière !';
+                    icon = '🌟';
+                    feedbackClass = 'correct';
+                } else {
+                    message = 'Tu as eu ' + correct + ' bonne' + (correct > 1 ? 's' : '') + ' réponse' + (correct > 1 ? 's' : '') + ' sur ' + total + '. Tu peux refaire le mini-quiz pour améliorer ton score.';
+                    icon = '💪';
+                    feedbackClass = '';
+                }
+                
+                container.innerHTML = '<div class="feedback ' + feedbackClass + ' show">' +
+                    '<span>' + icon + '</span> <strong>' + (correct === total ? 'Bravo !' : 'Pas mal !') + '</strong> ' + message +
+                    '</div>' +
+                    '<div class="action-buttons" style="margin-top: 15px;">' +
+                    '<button class="btn btn-secondary" onclick="restartLYQuiz()">🔄 Refaire le mini-quiz</button>' +
+                    '</div>';
+                document.getElementById('btnToConversion').style.display = 'flex';
+                return;
+            }
+
+            const q = lightYearQuiz[lyQuizIndex];
+            let optionsHtml = '';
+            for (let i = 0; i < q.options.length; i++) {
+                optionsHtml += '<div class="qcm-option" onclick="selectLYOption(this, ' + i + ')">' +
+                    '<span class="option-letter">' + String.fromCharCode(65 + i) + '</span>' +
+                    '<span>' + q.options[i] + '</span>' +
+                    '</div>';
+            }
+            
+            container.innerHTML = '<div class="question-header">' +
+                '<span class="question-number">Question ' + (lyQuizIndex + 1) + ' / ' + lightYearQuiz.length + '</span>' +
+                '</div>' +
+                '<div class="question-text">' + q.question + '</div>' +
+                '<div class="qcm-options" id="lyOptions">' + optionsHtml + '</div>' +
+                '<div class="feedback" id="lyFeedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary" onclick="checkLYQuiz()">Valider</button>' +
+                '</div>';
+        }
+        
+        function restartLYQuiz() {
+            score -= scoreByStep['ly'];
+            scoreByStep['ly'] = 0;
+            correctAnswers['ly'] = 0;
+            lyQuizIndex = 0;
+            selectedLY = -1;
+            updateScore();
+            renderLightYearQuiz();
+        }
+
+        let selectedLY = -1;
+        function selectLYOption(el, idx) {
+            document.querySelectorAll('#lyOptions .qcm-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedLY = idx;
+        }
+
+        function checkLYQuiz() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const q = lightYearQuiz[lyQuizIndex];
+            const feedback = document.getElementById('lyFeedback');
+            const options = document.querySelectorAll('#lyOptions .qcm-option');
+
+            options.forEach((opt, i) => {
+                if (i === q.correct) opt.classList.add('correct');
+                else if (i === selectedLY) opt.classList.add('incorrect');
+            });
+
+            if (selectedLY === q.correct) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Correct !</strong> ' + q.explanation;
+                score += 10;
+                scoreByStep['ly'] += 10;
+                correctAnswers['ly']++;
+                updateScore();
+            } else {
+                feedback.className = 'feedback incorrect show';
+                feedback.innerHTML = '❌ ' + q.explanation;
+            }
+
+            setTimeout(() => { isProcessing = false; selectedLY = -1; lyQuizIndex++; renderLightYearQuiz(); }, 2500);
+        }
+
+        // ==================== EXERCICES ÉTAPE 3 ====================
+        function renderExercise3() {
+            const container = document.getElementById('exercise3Container');
+            if (exercise3Index >= exercises3.length) {
+                const total = exercises3.length;
+                const correct = correctAnswers[3];
+                let message, icon;
+                
+                if (correct === total) {
+                    message = `<strong>Superbe !</strong> Tu maîtrises la conversion m → a.l. !`;
+                    icon = '🌟';
+                } else {
+                    message = `Tu as réussi ${correct} question${correct > 1 ? 's' : ''} sur ${total}.`;
+                    icon = correct >= total / 2 ? '👍' : '💪';
+                }
+                
+                container.innerHTML = `
+                    <div class="feedback ${correct === total ? 'correct' : ''} show">
+                        <span>${icon}</span> ${message}
+                    </div>
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="restartStep(3)">🔄 Recommencer cette étape</button>
+                    </div>
+                `;
+                document.getElementById('btnNextStep3').style.display = 'flex';
+                completedSteps[3] = true;
+                updateProgressDots();
+                return;
+            }
+
+            const ex = exercises3[exercise3Index];
+            
+            let html = '<div class="question-header">' +
+                '<span class="question-number">Conversion ' + (exercise3Index + 1) + ' / ' + exercises3.length + '</span>' +
+                '<button class="btn btn-secondary" onclick="showMethod(3)" style="padding: 6px 12px; font-size: 0.8rem;">💡 Rappel</button>' +
+                '</div>' +
+                '<div class="question-text" style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap;">';
+            
+            if (ex.img) {
+                html += '<img src="' + ex.img + '" alt="' + ex.name + '" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(255,215,0,0.4);">';
+            }
+            
+            html += '<span><strong class="highlight-gold">' + ex.name + '</strong> : <span class="highlight-cyan">' + ex.meters + ' m</span> → <strong class="highlight-gold">? a.l.</strong></span>' +
+                '</div>' +
+                '<div class="sci-input-zone">' +
+                '<input type="text" class="native-input native-input-simple val-input" placeholder="Réponse" inputmode="decimal">' +
+                '<span class="input-unit">a.l.</span>' +
+                '</div>' +
+                '<div class="feedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary check-btn" onclick="checkExercise3()">Vérifier</button>' +
+                '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function checkExercise3() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const container = document.getElementById('exercise3Container');
+            const btn = container.querySelector('.check-btn');
+            if (btn) btn.disabled = true;
+            
+            const ex = exercises3[exercise3Index];
+            const inputA = container.querySelector('.val-input').value.replace(/,/g, '.').replace(/\s/g, '').trim();
+            const feedback = container.querySelector('.feedback');
+
+            const correctVal = ex.answerSimple;
+            const userVal = parseFloat(inputA);
+
+            // Vérifier si c'est un arrondi correct
+            const isCorrect = isValidRounding(userVal, correctVal);
+
+            if (isCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Bravo !</strong> ' + ex.name + ' ' + ex.answerAL;
+                score += 20;
+                scoreByStep[3] += 20;
+                correctAnswers[3]++;
+                updateScore();
+                setTimeout(function() { isProcessing = false; exercise3Index++; renderExercise3(); }, 1500);
+            } else {
+                isProcessing = false;
+                if (btn) btn.disabled = false;
+                feedback.className = 'feedback incorrect show';
+                feedback.innerHTML = '❌ <strong>Essaie encore.</strong> Vérifie ton calcul.';
+            }
+        }
+
+        // ==================== EXERCICES ÉTAPE 4 ====================
+        function renderExercise4() {
+            const container = document.getElementById('exercise4Container');
+            if (exercise4Index >= exercises4.length) {
+                const total = exercises4.length;
+                const correct = correctAnswers[4];
+                let message, icon;
+                
+                if (correct === total) {
+                    message = `<strong>Génial !</strong> Tu maîtrises les deux sens de conversion !`;
+                    icon = '🚀';
+                } else {
+                    message = `Tu as réussi ${correct} question${correct > 1 ? 's' : ''} sur ${total}.`;
+                    icon = correct >= total / 2 ? '👍' : '💪';
+                }
+                
+                container.innerHTML = `
+                    <div class="feedback ${correct === total ? 'correct' : ''} show">
+                        <span>${icon}</span> ${message}
+                    </div>
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="restartStep(4)">🔄 Recommencer cette étape</button>
+                    </div>
+                `;
+                document.getElementById('btnNextStep4').style.display = 'flex';
+                completedSteps[4] = true;
+                updateProgressDots();
+                return;
+            }
+
+            const ex = exercises4[exercise4Index];
+            
+            let html = '<div class="question-header">' +
+                '<span class="question-number">Conversion ' + (exercise4Index + 1) + ' / ' + exercises4.length + '</span>' +
+                '</div>' +
+                '<div class="question-text" style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap;">';
+            
+            if (ex.img) {
+                html += '<img src="' + ex.img + '" alt="' + ex.name + '" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(255,107,157,0.4);">';
+            }
+            
+            html += '<span><strong class="highlight-pink">' + ex.name + '</strong> : <span class="highlight-gold">' + ex.al + ' a.l.</span> → <strong class="highlight-cyan">? m</strong></span>' +
+                '</div>' +
+                '<div class="sci-input-zone">' +
+                '<input type="text" class="native-input native-input-a val-input" placeholder="a" inputmode="decimal">' +
+                '<span class="times">×</span>' +
+                '<span class="exp-container">' +
+                '<span class="exp-ten">10</span>' +
+                '<input type="text" class="native-input native-input-n exp-input" placeholder="n" inputmode="numeric">' +
+                '</span>' +
+                '<span class="input-unit">m</span>' +
+                '</div>' +
+                '<div class="feedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary check-btn" onclick="checkExercise4()">Vérifier</button>' +
+                '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function checkExercise4() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const container = document.getElementById('exercise4Container');
+            const btn = container.querySelector('.check-btn');
+            if (btn) btn.disabled = true;
+            
+            const ex = exercises4[exercise4Index];
+            const inputA = container.querySelector('.val-input').value.replace(/,/g, '.').trim();
+            const inputN = container.querySelector('.exp-input').value.replace(/,/g, '.').trim();
+            const feedback = container.querySelector('.feedback');
+
+            const correctA = parseFloat(String(ex.answer.value).replace(/,/g, '.'));
+            const correctN = parseInt(ex.answer.exp);
+            const userA = parseFloat(inputA);
+            const userN = parseInt(inputN);
+
+            // Arrondi correct pour la valeur, exposant exact
+            const aCorrect = isValidRounding(userA, correctA);
+            const nCorrect = !isNaN(userN) && userN === correctN;
+
+            if (aCorrect && nCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Bravo !</strong>';
+                score += 20;
+                scoreByStep[4] += 20;
+                correctAnswers[4]++;
+                updateScore();
+                setTimeout(function() { isProcessing = false; exercise4Index++; renderExercise4(); }, 1500);
+            } else {
+                isProcessing = false;
+                if (btn) btn.disabled = false;
+                feedback.className = 'feedback incorrect show';
+                let hint = '❌ <strong>Essaie encore.</strong>';
+                if (!aCorrect && !nCorrect) hint += ' Vérifie la valeur et l\'exposant.';
+                else if (!aCorrect) hint += ' Vérifie la valeur.';
+                else if (!nCorrect) hint += ' Vérifie l\'exposant.';
+                feedback.innerHTML = hint;
+            }
+        }
+
+        // ==================== QUIZ FINAL ====================
+        function renderQuizFinal() {
+            const container = document.getElementById('quizFinalContainer');
+            if (quizIndex >= quizQuestions.length) {
+                showFinalResults();
+                return;
+            }
+
+            const q = quizQuestions[quizIndex];
+            let questionText = '';
+            let unit = '';
+            let isSimpleAnswer = q.simpleAnswer !== undefined;
+
+            if (q.type === 'toSci') {
+                questionText = '<span class="highlight-gold">' + q.number + '</span> en notation scientifique';
+            } else if (q.type === 'mToAL') {
+                questionText = '<span class="highlight-cyan">' + q.meters + ' m</span> → <strong class="highlight-gold">? a.l.</strong>';
+                unit = 'a.l.';
+            } else if (q.type === 'alToM') {
+                questionText = '<span class="highlight-gold">' + q.al + ' a.l.</span> → <strong class="highlight-cyan">? m</strong>';
+                unit = 'm';
+            } else if (q.type === 'kmToAL') {
+                questionText = '<span class="highlight-pink">' + q.km + ' km</span> → <strong class="highlight-gold">? a.l.</strong>';
+                unit = 'a.l.';
+            } else if (q.type === 'alToKM') {
+                questionText = '<span class="highlight-gold">' + q.al + ' a.l.</span> → <strong class="highlight-pink">? km</strong>';
+                unit = 'km';
+            }
+
+            let unitStyle = (q.type === 'alToKM') ? ' style="color: var(--nova-pink);"' : '';
+
+            let inputZone;
+
+            if (isSimpleAnswer) {
+                inputZone = '<div class="sci-input-zone">' +
+                    '<input type="text" class="native-input native-input-simple val-input" placeholder="Réponse" inputmode="decimal">' +
+                    '<input type="hidden" class="exp-input" value="0">' +
+                    '<span class="input-unit"' + unitStyle + '>' + unit + '</span>' +
+                    '</div>';
+            } else {
+                inputZone = '<div class="sci-input-zone">' +
+                    '<input type="text" class="native-input native-input-a val-input" placeholder="a" inputmode="decimal">' +
+                    '<span class="times">×</span>' +
+                    '<span class="exp-container">' +
+                    '<span class="exp-ten">10</span>' +
+                    '<input type="text" class="native-input native-input-n exp-input" placeholder="n" inputmode="numeric">' +
+                    '</span>' +
+                    (unit ? '<span class="input-unit"' + unitStyle + '>' + unit + '</span>' : '') +
+                    '</div>';
+            }
+
+            container.innerHTML = '<div class="exercise-box">' +
+                '<div class="question-header">' +
+                '<span class="question-number">Question ' + (quizIndex + 1) + ' / ' + quizQuestions.length + '</span>' +
+                '<button class="btn btn-secondary" onclick="toggleQuizHint()" style="padding: 6px 12px; font-size: 0.8rem;">📌 Valeurs</button>' +
+                '</div>' +
+                '<div class="quiz-hint-box" style="display: none; background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 10px; margin: 10px 0; font-size: 0.9rem;">' +
+                '<p style="margin: 5px 0;">• 1 a.l. = <strong>9,46 × 10<sup>15</sup></strong> m</p>' +
+                '<p style="margin: 5px 0;">• 1 a.l. = <strong>9,46 × 10<sup>12</sup></strong> <span style="color: var(--nova-pink);">km</span></p>' +
+                '</div>' +
+                '<div class="question-text">' + questionText + '</div>' +
+                (q.type !== 'toSci' ? '<p style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin: 5px 0;">💡 Les réponses arrondies sont acceptées</p>' : '') +
+                inputZone +
+                '<div class="feedback"></div>' +
+                '<div class="action-buttons">' +
+                '<button class="btn btn-primary check-btn" onclick="checkQuizFinal()">Valider</button>' +
+                '<button class="btn btn-secondary" onclick="skipQuiz()">Passer →</button>' +
+                '</div></div>';
+        }
+
+        function toggleQuizHint() {
+            const container = document.getElementById('quizFinalContainer');
+            const hint = container.querySelector('.quiz-hint-box');
+            hint.style.display = hint.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function checkQuizFinal() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const container = document.getElementById('quizFinalContainer');
+            const btn = container.querySelector('.check-btn');
+            if (btn) btn.disabled = true;
+            
+            const q = quizQuestions[quizIndex];
+            const inputA = container.querySelector('.val-input').value.replace(/,/g, '.').trim();
+            const inputN = container.querySelector('.exp-input').value.replace(/,/g, '.').trim();
+            const feedback = container.querySelector('.feedback');
+
+            const userA = parseFloat(inputA);
+            const userN = parseInt(inputN) || 0;
+            
+            let isCorrect = false;
+            let correctDisplay = '';
+
+            // Cas des réponses simples (sans notation scientifique)
+            if (q.simpleAnswer !== undefined) {
+                const correctVal = q.simpleAnswer;
+                isCorrect = isValidRounding(userA, correctVal);
+                // Afficher avec virgule française
+                correctDisplay = String(q.simpleAnswer).replace('.', ',') + ' a.l.';
+            } else if (q.type === 'toSci') {
+                const correctA = parseFloat(String(q.answer.a).replace(/,/g, '.'));
+                const correctN = parseInt(q.answer.n);
+                // Pour notation scientifique: réponse EXACTE requise
+                const aCorrect = !isNaN(userA) && userA >= 1 && userA < 10 && Math.abs(userA - correctA) < 0.0001;
+                const nCorrect = !isNaN(userN) && userN === correctN;
+                isCorrect = aCorrect && nCorrect;
+                correctDisplay = q.answer.a + ' × 10<sup>' + q.answer.n + '</sup>';
+            } else {
+                // Conversions avec notation scientifique - arrondis acceptés
+                const correctA = parseFloat(String(q.answer.value).replace(/,/g, '.'));
+                const correctN = parseInt(q.answer.exp);
+                
+                // L'exposant doit être exact, la valeur peut être arrondie correctement
+                const aCorrect = !isNaN(userA) && isValidRounding(userA, correctA);
+                const nCorrect = !isNaN(userN) && userN === correctN;
+                isCorrect = aCorrect && nCorrect;
+                correctDisplay = String(correctA).replace('.', ',') + ' × 10<sup>' + correctN + '</sup>';
+                
+                // Ajouter l'unité
+                if (q.type === 'mToAL' || q.type === 'kmToAL') correctDisplay += ' a.l.';
+                else if (q.type === 'alToM') correctDisplay += ' m';
+                else if (q.type === 'alToKM') correctDisplay += ' km';
+            }
+
+            if (isCorrect) {
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = '✅ <strong>Correct !</strong>';
+                score += 15;
+                scoreByStep[5] += 15;
+                correctAnswers[5]++;
+                updateScore();
+            } else {
+                feedback.className = 'feedback incorrect show';
+                feedback.innerHTML = '❌ <strong>Pas tout à fait.</strong> La réponse était ' + correctDisplay;
+            }
+
+            setTimeout(() => { isProcessing = false; quizIndex++; renderQuizFinal(); }, 2000);
+        }
+
+        function skipQuiz() {
+            isProcessing = false;
+            quizIndex++;
+            renderQuizFinal();
+        }
+
+        function showFinalResults() {
+            document.getElementById('quizFinalContainer').style.display = 'none';
+            const results = document.getElementById('finalResults');
+            results.style.display = 'block';
+            
+            const total = quizQuestions.length;
+            const correct = correctAnswers[5];
+            
+            let message = '';
+            let emoji = '';
+            
+            if (correct >= 13) {
+                message = '🏆 Excellent ! Tu maîtrises parfaitement les conversions astronomiques. Tu es prêt(e) à devenir astronome !';
+                emoji = '🏆';
+            } else if (correct >= 9) {
+                message = '🌟 Très bien ! Tu as de solides connaissances. Encore un petit effort et tu seras au top !';
+                emoji = '🌟';
+            } else if (correct >= 4) {
+                message = '👍 Bon travail ! Tu progresses bien. Révise les étapes précédentes et tu vas t\'améliorer rapidement !';
+                emoji = '👍';
+            } else {
+                message = '🚀 C\'est un bon début ! Les conversions astronomiques, c\'est un défi. Reprends les étapes une par une, tu vas y arriver !';
+                emoji = '🚀';
+            }
+            
+            results.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">${emoji}</div>
+                    <h2 style="font-family: 'Orbitron', sans-serif; color: var(--star-gold); font-size: 2rem; margin-bottom: 15px;">Résultats</h2>
+                    <div style="font-size: 2rem; font-family: 'Orbitron', sans-serif; color: var(--plasma-cyan);">${correct} / ${total} questions</div>
+                    <p style="margin-top: 20px; font-size: 1.1rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">${message}</p>
+                    <div class="action-buttons" style="margin-top: 25px; justify-content: center;">
+                        <button class="btn btn-secondary" onclick="restartStep(5)" style="font-size: 1rem; padding: 12px 25px;">🔄 Recommencer le quiz</button>
+                        <button class="btn btn-primary" onclick="location.reload()" style="font-size: 1rem; padding: 12px 25px;">🚀 Tout recommencer</button>
+                    </div>
+                </div>
+            `;
+            
+            completedSteps[5] = true;
+            updateProgressDots();
+        }
+
+        // ==================== FONCTION PASSER ====================
+        function skipExercise(step) {
+            isProcessing = false;
+            if (step === 1) { exercise1Index++; renderExercise1(); }
+            else if (step === 2) { exercise2Index++; renderExercise2(); }
+            else if (step === 3) { exercise3Index++; renderExercise3(); }
+            else if (step === 4) { exercise4Index++; renderExercise4(); }
+        }
+    </script>
+</body>
+</html>
